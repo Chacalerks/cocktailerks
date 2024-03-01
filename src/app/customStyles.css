@@ -1,0 +1,38 @@
+/* src/customStyles.css */
+@import url('https://fonts.googleapis.com/css2?family=Tangerine&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Madimi+One&display=swap');
+
+html {
+    margin: 0;
+}
+
+/* src/customStyles.css */
+body {
+    background-color: #F4ECE1;
+    margin: 0;
+    padding: 0;
+    /* Your chosen background color */
+}
+
+.background-image {
+    background-image: url('../img/background.jpg') !important;
+
+}
+
+.topBar {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding-left: 20%;
+    padding-right: 20%;
+
+}
+
+.search-bar {
+
+    padding: 1.5rem rem;
+
+
+
+}
