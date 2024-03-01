@@ -29,7 +29,7 @@ const useIngredients = (correctIngredients) => {
     const checkAccuracy = () => {
         let correctSelections = selectedIngredients.filter(ingredientObj => correctIngredients.includes(ingredientObj.name)).length;
         let wrongSelections = selectedIngredients.filter(ingredientObj => !correctIngredients.includes(ingredientObj.name)).length;
-        let substractions = correctIngredients.length - correctSelections;
+        let substractions = correctSelections - wrongSelections;
         const accuracyPercentage = (substractions / correctIngredients.length) * 100;
         setAccuracy(accuracyPercentage);
         setShowResult(true); // Show the result dialog

@@ -1,69 +1,82 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
+import { Card, CardMedia, CardContent, Typography, Box, Grid } from '@mui/material';
 import { useRouter } from 'next/router';
 import Layout from '../../app/layout/Layout';
-import CocktailDetails from '../../components/ui/CocktailDetails';
-
-import CocktailCard from '../../components/ui/CocktailCard';
-import IngredientCard from '../../components/ui/IngredientCard';
-import AccuracyDialog from '../../components/AccuracyDialog';
 import useCocktailInfo from '../../hooks/useCocktailInfo';
-import useIngredients from '../../hooks/useIngredients';
 
-
-import { Button, Grid, Box, Typography, TextField, Container } from '@mui/material';
 const CocktailInfoPage = () => {
     const router = useRouter();
     const { id } = router.query;
-    const { cocktail, ingredients, additionalIngredients } = useCocktailInfo(id);
-    const { selectedIngredients, toggleIngredientSelection, checkAccuracy, accuracy, showResult, setShowResult } = useIngredients(ingredients);
+    const { cocktail } = useCocktailInfo(id);
 
-    // Combine and shuffle ingredients for display
-    const [displayIngredients, setDisplayIngredients] = useState([]);
+    // Function to render ingredients and measurements
+    const renderIngredients = () => {
+        if (!cocktail) return []; // Early return if no cocktail data
 
-    useEffect(() => {
-        // Combine and shuffle ingredients only when `ingredients` or `additionalIngredients` change
-        const shuffledIngredients = [...ingredients, ...additionalIngredients].sort(() => Math.random() - 0.5);
-        setDisplayIngredients(shuffledIngredients);
-    }, [ingredients, additionalIngredients]); // Dependencies array
+        const ingredients = [];
+        try {
+            for (let i = 1; i <= 15; i++) {
+                const ingredient = cocktail[`strIngredient${i}`];
+                const measure = cocktail[`strMeasure${i}`];
+                if (ingredient) {
+                    ingredients.push(
+                        <Box key={i} sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography variant="body2" sx={{ fontWeight: 'bold', '::before': { content: '"• "', mr: 1 } }}>
+                                {measure ? `${measure} of ` : ''}{ingredient}
+                            </Typography>
+                        </Box>
+                    );
+                }
+            }
+        } catch (error) {
+            console.error("Error rendering ingredients:", error);
+            return [<Typography key="error">Error loading ingredients.</Typography>];
+        }
+        return ingredients;
+    };
 
     return (
         <Layout>
             <Typography align="center" variant="h4" sx={{ fontFamily: '"Tangerine"', fontWeight: 'bold', fontSize: "3rem", mb: 2 }}>
-                Test Your knowledge of a Cocktail
+                Good Option for a Cocktail
             </Typography>
-            <Box sx={{ mb: 5 }}>
-                {cocktail && (
-                    <CocktailDetails cocktail={cocktail} />
-                )}
-            </Box>
-            <Typography align="center" variant="subtitle1" sx={{ fontSize: "1.2rem", mb: 5 }}>
-                In this game, you will be presented with a list of ingredients. Select the ingredients you think are used in the cocktail above. When you are ready, click the button to check your accuracy.
-            </Typography>
-            <Grid container spacing={5} justifyContent="center" alignItems="center">
-                {displayIngredients.map((ingredient, index) => {
-                    // Determine if the current ingredient is selected
-
-                    return (
-                        <Grid item xs={12} sm={6} md={4} key={index}> {/* It's better to use index as the key here since cocktail.idDrink will be the same for all ingredients */}
-                            <IngredientCard
-                                ingredientObj={{ name: ingredient, isSpecial: additionalIngredients.includes(ingredient) }}
-                                toggleSelection={() => toggleIngredientSelection(ingredient)} // Pass isSelected as a prop to IngredientCard
-                                selectedIngredients={selectedIngredients} // Pass isSelected as a prop to IngredientCard
+            {cocktail ? (
+                <Grid container justifyContent="center">
+                    <Grid item xs={12} md={8}>
+                        <Card raised sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'center', m: 2 }}>
+                            <CardMedia
+                                component="img"
+                                sx={{
+                                    width: { sm: 250 }, // Adjust width as needed
+                                    height: 250, // Adjust height as needed
+                                    objectFit: 'cover', // Ensures the image covers the space without distorting aspect ratio
+                                }}
+                                image={cocktail.strDrinkThumb}
+                                alt={cocktail.strDrink}
                             />
-                        </Grid>
-                    );
-                })}
-            </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 2 }}>
-                <Button variant="contained" sx={{ padding: '0.5rem 3rem', mt: 2 }} onClick={checkAccuracy}>
-                    Check My Ingredients
-                </Button>
-            </Box>
-
-
-
-            <AccuracyDialog open={showResult} accuracy={accuracy} onClose={() => setShowResult(false)} />
+                            <CardContent sx={{ flex: '1' }}>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    {cocktail.strDrink}
+                                </Typography>
+                                <Box sx={{ my: 2 }}>
+                                    <Typography variant="subtitle1" component="div">
+                                        Ingredients:
+                                    </Typography>
+                                    {renderIngredients()}
+                                </Box>
+                                <Typography variant="body1" color="text.secondary">
+                                    Instructions: {cocktail.strInstructions}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+            ) : (
+                <Typography align="center" variant="subtitle1" sx={{ mt: 5 }}>
+                    No cocktail data available. Please try a different cocktail.
+                </Typography>
+            )}
         </Layout>
     );
 };

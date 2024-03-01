@@ -1,25 +1,34 @@
 import React from 'react';
 import { Dialog, DialogTitle, DialogContent, Typography, DialogActions, Button, CircularProgress, Box } from '@mui/material';
 
+const getColorBasedOnAccuracy = (accuracy) => {
+    if (accuracy < 0) return 'error.main'; // Red for less than 0
+    if (accuracy >= 0 && accuracy < 55) return 'warning.main'; // Yellow for 0 to 54
+    if (accuracy >= 55 && accuracy < 100) return 'success.main'; // Green for 55 to 99
+    return 'cyan'; // Fluorescent cyan for 100
+};
+
 const AccuracyDialog = ({ open, accuracy, onClose }) => {
+    const progressColor = getColorBasedOnAccuracy(accuracy);
+
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>Result</DialogTitle>
             <DialogContent>
                 <Box
-                    display="flex" // Use Flexbox to center elements
-                    flexDirection="column" // Stack elements vertically
-                    alignItems="center" // Center elements horizontally
-                    justifyContent="center" // Center elements vertically
-                    sx={{ p: 4 }} // Add padding for more space around elements
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    sx={{ p: 4 }}
                 >
                     <Box position="relative" display="inline-flex">
                         <CircularProgress
                             variant="determinate"
-                            color='primary'
                             value={accuracy}
-                            size={100} // Size of the CircularProgress
+                            size={100}
                             thickness={4}
+                            sx={{ color: progressColor }} // Apply the dynamic color based on accuracy
                         />
                         <Box
                             top={0}
